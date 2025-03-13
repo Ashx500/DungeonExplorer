@@ -13,8 +13,6 @@ namespace DungeonExplorer
         {
             Game game = new Game();
             game.Start();
-            Console.WriteLine("Waiting for your Implementation");
-            Console.ReadKey();
         }
     }
 }
