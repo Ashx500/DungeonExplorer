@@ -315,11 +315,12 @@ namespace DungeonExplorer
                     Console.Clear();
                     intro.Displayintro(); // Void function only shows text for intro
                     bool choice = intro.HandleYouHaveAChoice(); // possible end to the game, see intro.HandleYouHaveAChoice();
+                    player = new Player(intro.Username);
                     if (!choice)
                     {
                         break;
                     }
-                    player = new Player("ash");
+
                     bool roomLoop = true;
 
                     while (roomLoop) // create a loop in which the player can now explore through the different rooms
