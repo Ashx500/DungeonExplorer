@@ -1,25 +1,28 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
 
 namespace DungeonExplorer
 {
-    public class Player
+    public class Player : Intro
     {
         public string Name { get; private set; }
-        public int Health { get; private set; }
-        private List<string> inventory = new List<string>();
-
-        public Player(string name, int health) 
+        public List<string> Inventory { get; private set; }
+        public Player(string name) 
         {
             Name = name;
-            Health = health;
+            Inventory = new List<string>();
         }
         public void PickUpItem(string item)
         {
-
+                Inventory.Add(item);
+                PrintLetterByLetter($"{item}", 50);
+                Thread.Sleep(2500);
         }
         public string InventoryContents()
         {
-            return string.Join(", ", inventory);
+            return string.Join(", ", Inventory);
         }
     }
 }
