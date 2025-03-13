@@ -38,7 +38,7 @@ namespace DungeonExplorer
                 Console.WriteLine($"Invalid choice, Please select {choice1} or {choice2}");
             }
         }
-        
+
         //Endgame method utilising the "Choice" method for a simple but effective way to end the game
         public bool Endgame()
         {
@@ -56,7 +56,7 @@ namespace DungeonExplorer
     public class Intro
     {
         private Game_commands _Game_commands;
-
+        public string Username { get; private set; }
         public Intro()
         {
             _Game_commands = new Game_commands();
@@ -77,7 +77,7 @@ namespace DungeonExplorer
         }
         /* Creating a Display intro method that will utilize methods such as PrintLetterByLetter, we are also using thread.sleep for short delay's to allow
          * the user adequate time to read along with the story, and we will also be using _clear.Terminal For a higher quality reading experiance,*/
-        public String DisplayintroGetUsername()
+        public void Displayintro()
         {
             PrintLetterByLetter("Hello.", 100);
             Thread.Sleep(1000);
@@ -94,10 +94,10 @@ namespace DungeonExplorer
 
             _Game_commands.ClearTerminal();
             PrintLetterByLetter("It.. Its.. Its... : ", 200);
-            string username = Console.ReadLine();
+            Username = Console.ReadLine();
 
             _Game_commands.ClearTerminal();
-            PrintLetterByLetter($"Ah yes.. thats right, {username}", 50);
+            PrintLetterByLetter($"Ah yes.. thats right, {Username}", 50);
             Thread.Sleep(1000);
 
             _Game_commands.ClearTerminal();
@@ -117,7 +117,6 @@ namespace DungeonExplorer
             PrintLetterByLetter("You have a choice to make:\n\n", 50);
             PrintLetterByLetter("(1) Explore the Dungeon...\n", 50);
             PrintLetterByLetter("(2) Exit through the wooden door\n\n", 50);
-            return username;
         }
 
         // Game choice utilizing Choice method
@@ -154,6 +153,8 @@ namespace DungeonExplorer
         private Room currentRoom;
         private Intro intro;
         private Game_commands _game_Commands;
+        private bool roomStudied;
+        private bool roomSearched;
 
         public Game()
         {
@@ -182,6 +183,7 @@ namespace DungeonExplorer
         // Explore function utilising _game_Commands.Choice
         public bool Explore()
         {
+            Console.Clear();
             intro.PrintLetterByLetter("(1). Study this room\n", 50);
             intro.PrintLetterByLetter("(2). Search this room for items\n\n", 50);
             return _game_Commands.Choice("Make your choice: ", "1", "2");
@@ -190,22 +192,72 @@ namespace DungeonExplorer
         // Rather than a description, a study feature gives a more realistic "Dungeon Explorer" feel
         public void StudyRoom()
         {
-            Console.Clear();
-            intro.PrintLetterByLetter($"{currentRoom.GetDescription()}", 50);
-            Thread.Sleep(2000);
+            if (!roomStudied)
+            {
+                Console.Clear();
+                intro.PrintLetterByLetter($"{currentRoom.GetDescription()}", 50);
+                Thread.Sleep(2000);
+                roomStudied = true;
+            }
+            else
+            {
+                intro.PrintLetterByLetter("You have already studied this room.", 50);
+            }
         }
         // a function to check if items exist within a room and if they do these items can be found, better items take more luck to find with the rng feature
         public string SearchRoom()
         {
+            Console.Clear();
+            if (!roomSearched)
             {
                 if (RoomRng.ContainsItems())
                 {
-                    return RoomRng.GetRandomItem();
+                    string item = RoomRng.GetRandomItem();
+                    roomSearched = true;
+
+                    if (item != null && item != "null")
+                    {
+                        return $"You search the room thoroughly and found {item}!";
+                    }
+                    else
+                    {
+                        return $"No matter how hard you look you cannot seem to find any new items, perhaps you have completed the collection";
+                    }
                 }
                 else
                 {
-                    return "No item";
+                    return "You search the room from top to bottom but find nothing";
                 }
+            }
+            else
+            {
+                return "You have already searched this room.";
+            }
+        }
+
+        public void ViewInventory()
+        {
+            if (player.Inventory.Count == 0)
+            {
+                return;
+            }
+
+            Console.Clear();
+            intro.PrintLetterByLetter("Would you like to view the items you have collected?\n\n", 25);
+            intro.PrintLetterByLetter("(Y) Yes\n", 50);
+            intro.PrintLetterByLetter("(N) No\n\n", 50);
+            intro.PrintLetterByLetter("Make your choice: ", 50);
+            bool View = _game_Commands.Choice("", "Y", "N" );
+
+            if (View)
+            {
+                string inventoryContents = player.InventoryContents();
+                intro.PrintLetterByLetter($"Items found: {inventoryContents}", 25);
+                Thread.Sleep(2000);
+            }
+            else
+            {
+                // Continue to next room 
             }
         }
 
@@ -218,18 +270,13 @@ namespace DungeonExplorer
                 while (playing)
                 {
                     Console.Clear();
-                    //intro.DisplayintroGetUsername(); // Void function only shows text for intro
+                    //intro.Displayintro(); // Void function only shows text for intro
                     //bool choice = intro.HandleYouHaveAChoice(); // possible end to the game, see intro.HandleYouHaveAChoice();
-                    while (true)
-                    {
-                        Console.WriteLine(SearchRoom());
-                        Thread.Sleep(1000);
-                    }
                     //if (!choice)
                     //{
                     //    break;
                     //}
-
+                    player = new Player("ash");
                     bool RoomLoop = true;
                     bool RoomStudied = false;
                     bool RoomSearched = false;
@@ -237,21 +284,23 @@ namespace DungeonExplorer
                     while (RoomLoop) // create a loop in which the player can now explore through the different rooms
                     {
                         currentRoom = new Room(); // Get a new room along with description
-                        NewAreaIntro(); // Random intro to the new room
-                        IntroduceNewRoom(); // Tell the player which room they have entered
+                        ViewInventory();
+                        //NewAreaIntro(); // Random intro to the new room
+                        //IntroduceNewRoom(); // Tell the player which room they have entered
                         while (!RoomStudied || !RoomSearched)
                         {
                             bool action = Explore();
 
-                            if (action && !RoomStudied)
+                            if (action)
                             {
                                 StudyRoom();
                                 RoomStudied = true;
 
                             }
-                            else if (!action && !RoomSearched)
+                            else if (!action)
                             {
-                                SearchRoom();
+                                string item = SearchRoom();
+                                player.PickUpItem(item);
                                 RoomSearched = true;
                             }
                         }

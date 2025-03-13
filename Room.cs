@@ -30,9 +30,9 @@ namespace DungeonExplorer
         public static readonly List<string> CurrentRoomIntro = new List<string>
         {
             "You stumble along and reach a new area within the dungeon...",
-            "You find your way to the next enterance...",
+            "You continue to search the room for openings until you find the next room...",
             "The flickering torchlight reveals a new corridor ahead...",
-            "A hidden passageway creaks open...",
+            "A hidden passageway creaks open, You walk into the new area revealed...",
             "Your footsteps echo as you push through the darkness, revealing a new part of the dungeon..."
         };
 
@@ -92,22 +92,24 @@ namespace DungeonExplorer
             return Rng(1, 3) != 1;
         }
 
+        // Different items along with chance of drop, the lower the more rare the item
         private static readonly Dictionary<string, int> Items = new Dictionary<string, int>
         {
-            { "Dagger", 25},
+            {"Dagger", 25},      // common
             {"short sword", 20},
             {"toothpaste", 5},
-            {"Css lanyard", 10},
+            {"Css lanyard", 10},  // uncommon
             {"laser pen", 15},
-            {"Tornado in a bottle", 3},
+            {"Tornado in a bottle", 3}, 
             {"Dark orb", 8},
             {"Goblin flute", 7},
-            {"spell tome", 5},
-            {"Gravity glove", 2},
+            {"spell tome", 5},    // rare
+            {"Gravity glove", 2}, // extremely rare
         };
 
         private static List<string> recievedItems = new List<string>();
 
+        // algorithm for getting a random item from the above pool of drops
         public static string GetRandomItem()
         {
             var availableItems = Items.Where(item => !recievedItems.Contains(item.Key)).ToDictionary(item => item.Key, item => item.Value);
