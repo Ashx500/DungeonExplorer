@@ -41,12 +41,12 @@ namespace DungeonExplorer
             if (AvailableRooms.Count > 0)
             {
                 int index = random.Next(AvailableRooms.Count);
-                var SelectedRoom = AvailableRooms[index];
+                var selectedRoom = AvailableRooms[index];
 
-                if (SelectedRoom.Key != null && SelectedRoom.Value != null)
+                if (selectedRoom.Key != null && selectedRoom.Value != null)
                 {
-                    name = SelectedRoom.Key;
-                    description = SelectedRoom.Value;
+                    name = selectedRoom.Key;
+                    description = selectedRoom.Value;
                     AvailableRooms.RemoveAt(index); // Remove the room from available rooms
                 }
             }
@@ -80,7 +80,7 @@ namespace DungeonExplorer
     public class RoomRng
     {
         // A simple rng method that is flexible and can have different rng values
-        public static int Rng(int low, int high)
+        public static int RandomIntFromRange(int low, int high)
         {
             Random random = new Random();
             return random.Next(low, high);
@@ -89,22 +89,22 @@ namespace DungeonExplorer
         // return false for 1 != 1 and all other outcomes are true, the chance of any room containing an item is 66%
         public static bool ContainsItems()
         {
-            return Rng(1, 3) != 1;
+            return RandomIntFromRange(1, 3) != 1;
         }
 
         // Different items along with chance of drop, the lower the more rare the item
         private static readonly Dictionary<string, int> Items = new Dictionary<string, int>
         {
-            {"Dagger", 25},      // common
+            {"Dagger", 25},      
             {"short sword", 20},
             {"toothpaste", 5},
-            {"Css lanyard", 10},  // uncommon
+            {"Css lanyard", 10},
             {"laser pen", 15},
-            {"Tornado in a bottle", 3}, 
+            {"Tornado in a bottle", 3},
             {"Dark orb", 8},
             {"Goblin flute", 7},
-            {"spell tome", 5},    // rare
-            {"Gravity glove", 2}, // extremely rare
+            {"spell tome", 5},  
+            {"Gravity glove", 2},
         };
 
         private static List<string> recievedItems = new List<string>();
@@ -119,14 +119,14 @@ namespace DungeonExplorer
                 return "null";
             }
 
-            int WeightingTotal = availableItems.Values.Sum();
-            int randomNum = Rng(1, WeightingTotal + 1);
-            int AddedWeight = 0;
+            int itemWeightings = availableItems.Values.Sum();
+            int randomNum = RandomIntFromRange(1, itemWeightings + 1);
+            int addedWeight = 0;
 
             foreach (var item in availableItems)
             {
-                AddedWeight += item.Value;
-                if (randomNum <= AddedWeight)
+                addedWeight += item.Value;
+                if (randomNum <= itemWeightings)
                 {
                     recievedItems.Add(item.Key);
                     return item.Key;
