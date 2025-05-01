@@ -8,7 +8,6 @@ namespace DungeonExplorer
     {
         private string name;
         private string description;
-
         private readonly Random random = new Random();
 
         public static readonly Dictionary<string, string> RoomDescriptions = new Dictionary<string, string>
@@ -86,37 +85,47 @@ namespace DungeonExplorer
             return random.Next(low, high);
         }
 
-        // return false for 1 != 1 and all other outcomes are true, the chance of any room containing an item is 66%
+        // Changed items drop rate to 91% allowing the player to obtain items more frequently
         public static bool ContainsItems()
         {
-            return RandomIntFromRange(1, 3) != 1;
+            return RandomIntFromRange(1, 100) <= 91;
         }
 
         // Different items along with chance of drop, the lower the more rare the item
         private static readonly Dictionary<string, int> Items = new Dictionary<string, int>
         {
-            {"Dagger", 25},      
-            {"short sword", 20},
+            /* Items can be added / deleted the odds of getting any item is as follows:
+             * Item weighting/Total weighting = % chance of receieving item */ 
+
+             // Ex. for Dagger (25/100) = 25%
+           
+            {"Dagger", 15},      
+            {"short sword", 15},
             {"toothpaste", 5},
             {"Css lanyard", 10},
             {"laser pen", 15},
             {"Tornado in a bottle", 3},
             {"Dark orb", 8},
-            {"Goblin flute", 7},
+            {"Goblin flute", 6},
             {"spell tome", 5},  
             {"Gravity glove", 2},
+            {"Freeze spell", 5},
+            {"Luck potion", 5},
+            {"Lucky key", 3 },
+            {"Lucky sword", 2 },
+            {"Dark side of the moon album", 1 },
         };
 
         private static List<string> recievedItems = new List<string>();
 
         // algorithm for getting a random item from the above pool of drops
-        public static string GetRandomItem()
+        public static (string, int) GetRandomItem()
         {
             var availableItems = Items.Where(item => !recievedItems.Contains(item.Key)).ToDictionary(item => item.Key, item => item.Value);
 
             if (availableItems.Count == 0)
             {
-                return "null";
+                return ("null", 0);
             }
 
             int itemWeightings = availableItems.Values.Sum();
@@ -126,13 +135,21 @@ namespace DungeonExplorer
             foreach (var item in availableItems)
             {
                 addedWeight += item.Value;
-                if (randomNum <= itemWeightings)
+                if (randomNum <= addedWeight)
                 {
                     recievedItems.Add(item.Key);
-                    return item.Key;
+                    return (item.Key, item.Value);
                 }
             }
-            return "Unknown item";
+            return ("Unknown item", 0);
+        }
+        public static int GetItemRating(int weight)
+        {
+            if (weight >= 20) return 1;
+            if (weight >= 15) return 2;
+            if (weight >= 10) return 3;
+            if (weight >= 5) return 4;
+            return 5;
         }
     }
 }

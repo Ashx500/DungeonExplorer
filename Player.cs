@@ -17,8 +17,6 @@ namespace DungeonExplorer
         public void PickUpItem(string item)
         {
                 Inventory.Add(item);
-                PrintLetterByLetter($"{item}", 50);
-                Thread.Sleep(2500);
         }
         public string InventoryContents()
         {
